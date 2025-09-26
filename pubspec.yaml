@@ -1,0 +1,63 @@
+name: survey_app
+description: A mobile app for conducting property surveys.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: ">=3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # State management
+  provider: ^6.0.5
+  
+  # Dependency injection
+  get_it: ^7.6.4
+  
+  # HTTP requests
+  http: ^1.1.0
+  
+  # Location services
+  geolocator: ^10.1.0
+  
+  # Maps
+  google_maps_flutter: ^2.5.0
+  
+  # Image picker
+  image_picker: ^1.0.4
+  
+  # Shared preferences for local storage
+  shared_preferences: ^2.2.2
+  
+  # JSON serialization
+  json_annotation: ^4.8.1
+  
+  # UI components
+  cupertino_icons: ^1.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  
+  # Code generation
+  json_serializable: ^6.7.1
+  build_runner: ^2.4.7
+  
+  # Linting
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  
+  # Assets
+  assets:
+    - assets/images/
+    
+  # Fonts (if needed)
+  # fonts:
+  #   - family: Roboto
+  #     fonts:
+  #       - asset: fonts/Roboto-Regular.ttf
