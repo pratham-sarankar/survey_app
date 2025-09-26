@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:survey_app/models/survey_entry.dart';
 import 'config/service_locator.dart';
 import 'providers/auth_provider.dart';
 import 'providers/survey_provider.dart';
@@ -12,10 +11,10 @@ import 'config/app_config.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  
   // Setup service locator
   await setupServiceLocator();
-
+  
   runApp(const MyApp());
 }
 
@@ -50,7 +49,7 @@ class MyApp extends StatelessWidget {
             border: OutlineInputBorder(),
             contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
-          cardTheme: CardThemeData(
+          cardTheme: CardTheme(
             elevation: 2,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
@@ -66,7 +65,7 @@ class MyApp extends StatelessWidget {
         },
         onGenerateRoute: (settings) {
           if (settings.name == '/entry-details') {
-            final entry = settings.arguments as SurveyEntry?;
+            final entry = settings.arguments;
             return MaterialPageRoute(
               builder: (context) => AddEntryScreen(entry: entry),
             );
