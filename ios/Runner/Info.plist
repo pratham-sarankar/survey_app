@@ -56,11 +56,11 @@
 
 	<!-- Camera permissions -->
 	<key>NSCameraUsageDescription</key>
-	<string>This app needs camera access to capture survey images.</string>
-	
+	<string>This app needs camera access to take photos for surveys.</string>
+
 	<!-- Photo library permissions -->
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>This app needs photo library access to select survey images.</string>
+	<string>This app needs photo library access to select photos for surveys.</string>
 	<key>io.flutter.embedded_views_preview</key>
 	<true/>
 </dict>

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:survey_app/screens/add_survey_screen.dart';
+import 'package:survey_app/screens/survey_photos_screen.dart';
 
 import 'config/app_config.dart';
 import 'config/service_locator.dart';
 import 'providers/auth_provider.dart';
+import 'providers/photo_provider.dart';
 import 'providers/survey_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
@@ -33,6 +35,9 @@ class MyApp extends StatelessWidget {
           create: (_) => SurveyProvider(serviceLocator()),
           update: (_, auth, previous) =>
               previous ?? SurveyProvider(serviceLocator()),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => PhotoProvider(serviceLocator()),
         ),
       ],
       child: MaterialApp(
@@ -72,6 +77,12 @@ class MyApp extends StatelessWidget {
           '/add-survey': (context) => const AddSurveyScreen(),
         },
         onGenerateRoute: (settings) {
+          if (settings.name == '/survey-photos') {
+            final surveyId = settings.arguments as String;
+            return MaterialPageRoute(
+              builder: (context) => SurveyPhotosScreen(surveyId: surveyId),
+            );
+          }
           return null;
         },
       ),

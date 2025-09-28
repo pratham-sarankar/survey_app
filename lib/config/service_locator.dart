@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 
 import '../services/auth_service.dart';
 import '../services/location_service.dart';
+import '../services/photo_service.dart';
 import '../services/survey_service.dart';
 
 final GetIt serviceLocator = GetIt.instance;
@@ -16,5 +17,11 @@ Future<void> setupServiceLocator() async {
   serviceLocator.registerLazySingleton<SurveyService>(() {
     final authService = serviceLocator<AuthService>();
     return SurveyService(authService);
+  });
+
+  // Photo service depends on AuthService for tokens
+  serviceLocator.registerLazySingleton<PhotoService>(() {
+    final authService = serviceLocator<AuthService>();
+    return PhotoService(authService);
   });
 }
