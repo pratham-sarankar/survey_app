@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:survey_app/models/survey_entry.dart';
+
+import 'config/app_config.dart';
 import 'config/service_locator.dart';
 import 'providers/auth_provider.dart';
 import 'providers/survey_provider.dart';
+import 'screens/add_entry_screen.dart';
+import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
-import 'screens/home_screen.dart';
-import 'screens/add_entry_screen.dart';
-import 'config/app_config.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: AppConfig.appName,
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primarySwatch: Colors.blue,
           useMaterial3: true,
@@ -98,14 +100,6 @@ class _AuthWrapperState extends State<AuthWrapper> {
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
-        if (authProvider.isLoading) {
-          return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        }
-
         if (authProvider.isAuthenticated) {
           return const HomeScreen();
         } else {

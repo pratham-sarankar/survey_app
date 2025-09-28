@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+
+import '../config/service_locator.dart';
 import '../models/user.dart';
 import '../services/auth_service.dart';
-import '../config/service_locator.dart';
 
 class AuthProvider with ChangeNotifier {
   User? _user;
@@ -70,8 +71,10 @@ class AuthProvider with ChangeNotifier {
       await _authService.logout();
       _user = null;
       _error = null;
+      notifyListeners();
     } catch (e) {
       _error = e.toString();
+      notifyListeners();
     } finally {
       _setLoading(false);
     }

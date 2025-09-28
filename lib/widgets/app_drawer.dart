@@ -1,40 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../providers/auth_provider.dart';
-import '../utils/dialog_helper.dart';
-import '../screens/login_screen.dart';
 
 class AppDrawer extends StatelessWidget {
-  const AppDrawer({super.key});
+  const AppDrawer({super.key, required this.onLogout});
 
-  Future<void> _logout(BuildContext context) async {
-    final confirmed = await DialogHelper.showConfirmationDialog(
-      context,
-      title: 'Logout',
-      message: 'Are you sure you want to logout?',
-      confirmText: 'Logout',
-      cancelText: 'Cancel',
-    );
-
-    if (confirmed && context.mounted) {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      await authProvider.logout();
-      
-      if (context.mounted) {
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
-          (route) => false,
-        );
-      }
-    }
-  }
+  final VoidCallback onLogout;
 
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
         final user = authProvider.user;
-        
+
         return Drawer(
           child: Column(
             children: [
@@ -80,7 +59,8 @@ class AppDrawer extends StatelessWidget {
                   children: [
                     ListTile(
                       leading: const Icon(Icons.list),
-                      title: Text(authProvider.isAdmin ? 'All Entries' : 'My Entries'),
+                      title: Text(
+                          authProvider.isAdmin ? 'All Entries' : 'My Entries'),
                       onTap: () {
                         Navigator.of(context).pop(); // Close drawer
                         // We're already on the home screen, so just refresh
@@ -103,7 +83,7 @@ class AppDrawer extends StatelessWidget {
                 title: const Text('Logout'),
                 onTap: () {
                   Navigator.of(context).pop(); // Close drawer first
-                  _logout(context);
+                  onLogout();
                 },
               ),
               const SizedBox(height: 16),
