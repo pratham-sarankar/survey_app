@@ -32,18 +32,20 @@ class SurveyProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> createSurvey(BuildContext context, SurveyForm form) async {
+  Future<String?> createSurvey(BuildContext context, SurveyForm form) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      await _surveyService.createSurvey(context, form);
+      final survey = await _surveyService.createSurvey(context, form);
       _error = null;
-      return true;
+      await loadSurveys(context); // Refresh the surveys list
+      return survey.id.toString(); // Return the created survey's ID
     } catch (e) {
       _error = e.toString();
-      return false;
+      notifyListeners();
+      return null;
     } finally {
       _isLoading = false;
       notifyListeners();

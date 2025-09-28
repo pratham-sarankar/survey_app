@@ -177,6 +177,40 @@ class PhotoService extends APIService {
     }
   }
 
+  Future<bool> deletePhoto(
+      BuildContext context, String surveyId, int photoId) async {
+    try {
+      final token = await getToken();
+      if (token == null) throw Exception('No auth token found');
+
+      final response = await http.delete(
+        Uri.parse('${ApiConfig.baseUrl}/surveys/$surveyId/images/$photoId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'accept': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 401) {
+        if (context.mounted) {
+          await handleUnauthorized(context);
+        }
+        throw Exception('Unauthorized');
+      }
+
+      final responseData = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && responseData['status'] == 'success') {
+        return true;
+      }
+
+      throw Exception(responseData['message'] ?? 'Failed to delete photo');
+    } catch (e) {
+      print('Delete photo error: $e'); // For debugging
+      throw Exception('Failed to delete photo: $e');
+    }
+  }
+
   MediaType? _getContentType(String filename) {
     final ext = path.extension(filename).toLowerCase();
     switch (ext) {

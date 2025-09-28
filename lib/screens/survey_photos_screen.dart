@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../models/survey_photo.dart';
 import '../providers/photo_provider.dart';
+import '../utils/dialog_helper.dart';
 
 class SurveyPhotosScreen extends StatefulWidget {
   final String surveyId;
@@ -127,6 +128,41 @@ class _SurveyPhotosScreenState extends State<SurveyPhotosScreen> {
     }
   }
 
+  Future<void> _deleteSyncedPhoto(SurveyPhoto photo) async {
+    final confirmed = await DialogHelper.showConfirmationDialog(
+      context,
+      title: 'Delete Photo',
+      message:
+          'Are you sure you want to delete this photo? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+    );
+
+    if (!confirmed || !mounted) return;
+
+    final photoProvider = Provider.of<PhotoProvider>(context, listen: false);
+    final success = await photoProvider.deleteSyncedPhoto(
+      context,
+      widget.surveyId,
+      photo,
+    );
+
+    if (!mounted) return;
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Photo deleted successfully')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(photoProvider.error ?? 'Failed to delete photo'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   Widget _buildPhotoGrid(List<SurveyPhoto> photos, {bool local = false}) {
     return GridView.builder(
       shrinkWrap: true,
@@ -164,29 +200,35 @@ class _SurveyPhotosScreenState extends State<SurveyPhotosScreen> {
                           ),
                         );
                       },
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Center(
+                          child: Icon(Icons.error_outline, color: Colors.red),
+                        );
+                      },
                     ),
             ),
-            if (local)
-              Positioned(
-                top: 4,
-                right: 4,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black54,
-                    borderRadius: BorderRadius.circular(12),
+            Positioned(
+              top: 4,
+              right: 4,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.white),
+                  iconSize: 20,
+                  constraints: const BoxConstraints(
+                    minHeight: 32,
+                    minWidth: 32,
                   ),
-                  child: IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.white),
-                    iconSize: 20,
-                    constraints: const BoxConstraints(
-                      minHeight: 32,
-                      minWidth: 32,
-                    ),
-                    padding: EdgeInsets.zero,
-                    onPressed: () => _deleteLocalPhoto(photo),
-                  ),
+                  padding: EdgeInsets.zero,
+                  onPressed: () => local
+                      ? _deleteLocalPhoto(photo)
+                      : _deleteSyncedPhoto(photo),
                 ),
               ),
+            ),
           ],
         );
       },

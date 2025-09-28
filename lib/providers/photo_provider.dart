@@ -119,6 +119,28 @@ class PhotoProvider with ChangeNotifier {
     }
   }
 
+  Future<bool> deleteSyncedPhoto(
+      BuildContext context, String surveyId, SurveyPhoto photo) async {
+    _setLoading(true);
+    _error = null;
+
+    try {
+      final success =
+          await _photoService.deletePhoto(context, surveyId, photo.id);
+      if (success) {
+        _syncedPhotos = _syncedPhotos.where((p) => p.id != photo.id).toList();
+        notifyListeners();
+      }
+      return success;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   void clearError() {
     _error = null;
     notifyListeners();

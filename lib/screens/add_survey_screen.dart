@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../models/survey_form.dart';
 import '../providers/survey_provider.dart';
+import '../screens/survey_photos_screen.dart';
 import '../utils/validators.dart';
 
 class AddSurveyScreen extends StatefulWidget {
@@ -96,12 +97,15 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
     final surveyProvider = Provider.of<SurveyProvider>(context, listen: false);
 
     try {
-      final success = await surveyProvider.createSurvey(context, _form);
-      if (success && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Survey created successfully')),
+      final surveyId = await surveyProvider.createSurvey(context, _form);
+
+      if (surveyId != null && mounted) {
+        // Navigate to SurveyPhotosScreen with the new survey ID
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => SurveyPhotosScreen(surveyId: surveyId),
+          ),
         );
-        Navigator.of(context).pop();
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
