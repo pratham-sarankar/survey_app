@@ -14,7 +14,7 @@ class User {
   final String? mobile;
   @JsonKey(name: 'login_id')
   final String? loginId;
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   final String? password;
   @JsonKey(name: 'access_token')
   final String? token;

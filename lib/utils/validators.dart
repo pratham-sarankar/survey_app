@@ -136,4 +136,37 @@ class Validators {
 
     return null;
   }
+
+  static String? validatePropertyUid(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Property UID is required';
+    } else if (value.length < 3) {
+      return 'Property UID must be at least 3 characters';
+    }
+    return null;
+  }
+
+  static String? validateQrId(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'QR ID is required';
+    }
+    return null;
+  }
+
+  static String? validateWardNumber(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Ward number is required';
+    }
+    return null;
+  }
+
+  static String? validateName(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Name is required';
+    }
+    if (value.trim().length < 3) {
+      return 'Name must be at least 3 characters';
+    }
+    return null;
+  }
 }

@@ -21,20 +21,22 @@ class Survey {
   final String whatsappNumber;
   final double latitude;
   final double longitude;
-  @JsonKey(name: 'surveyor_profile_id')
-  final int surveyorProfileId;
+  @JsonKey(name: 'surveyor_profile_id', required: false)
+  final int? surveyorProfileId;
   @JsonKey(
     name: 'created_at',
     fromJson: _dateTimeFromString,
     toJson: _dateTimeToString,
+    required: false,
   )
-  final DateTime createdAt;
+  final DateTime? createdAt;
   @JsonKey(
     name: 'updated_at',
     fromJson: _dateTimeFromString,
     toJson: _dateTimeToString,
+    required: false,
   )
-  final DateTime updatedAt;
+  final DateTime? updatedAt;
 
   Survey({
     required this.id,
@@ -47,14 +49,15 @@ class Survey {
     required this.whatsappNumber,
     required this.latitude,
     required this.longitude,
-    required this.surveyorProfileId,
-    required this.createdAt,
-    required this.updatedAt,
+    this.surveyorProfileId,
+    this.createdAt,
+    this.updatedAt,
   });
 
   factory Survey.fromJson(Map<String, dynamic> json) => _$SurveyFromJson(json);
   Map<String, dynamic> toJson() => _$SurveyToJson(this);
 
-  static DateTime _dateTimeFromString(String date) => DateTime.parse(date);
-  static String _dateTimeToString(DateTime date) => date.toIso8601String();
+  static DateTime? _dateTimeFromString(String? date) =>
+      date != null ? DateTime.tryParse(date) : null;
+  static String? _dateTimeToString(DateTime? date) => date?.toIso8601String();
 }

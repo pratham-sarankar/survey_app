@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/survey.dart';
+import '../models/survey_form.dart';
 import '../services/survey_service.dart';
 
 class SurveyProvider with ChangeNotifier {
@@ -25,6 +26,24 @@ class SurveyProvider with ChangeNotifier {
       _error = null;
     } catch (e) {
       _error = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> createSurvey(BuildContext context, SurveyForm form) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _surveyService.createSurvey(context, form);
+      _error = null;
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
     } finally {
       _isLoading = false;
       notifyListeners();

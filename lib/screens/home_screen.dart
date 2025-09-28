@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       drawer: const AppDrawer(),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.of(context).pushNamed('/add-entry'),
+        onPressed: () => Navigator.of(context).pushNamed('/add-survey'),
         icon: const Icon(Icons.add),
         label: const Text('Add Survey'),
       ),
@@ -200,12 +200,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                     children: [
                                       Brand(Brands.whatsapp),
                                       const SizedBox(width: 8),
-                                      Text(
-                                        survey.whatsappNumber,
-                                        style: TextStyle(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .secondary,
+                                      Expanded(
+                                        child: Text(
+                                          survey.whatsappNumber,
+                                          style: TextStyle(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -218,7 +220,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  'Created: ${DateFormat('MMM d, yyyy').format(survey.createdAt)}',
+                                  'Created: ${DateFormat('MMM d, yyyy').format(survey.createdAt!)}',
                                   style: TextStyle(
                                     color:
                                         Theme.of(context).colorScheme.secondary,

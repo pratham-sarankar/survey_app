@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:survey_app/screens/add_entry_screen.dart';
 
 import 'config/app_config.dart';
 import 'config/service_locator.dart';
@@ -68,6 +69,7 @@ class MyApp extends StatelessWidget {
           '/login': (context) => const LoginScreen(),
           '/register': (context) => const RegisterScreen(),
           '/home': (context) => const HomeScreen(),
+          '/add-survey': (context) => const AddSurveyScreen(),
         },
         onGenerateRoute: (settings) {
           return null;
