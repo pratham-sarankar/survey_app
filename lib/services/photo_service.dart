@@ -10,10 +10,9 @@ import 'package:path_provider/path_provider.dart';
 import '../config/api_config.dart';
 import '../models/survey_photo.dart';
 import 'api_service.dart';
-import 'auth_service.dart';
 
 class PhotoService extends APIService {
-  PhotoService(AuthService authService) : super(authService);
+  PhotoService(super.authService);
 
   Future<String> get _localPath async {
     final directory = await getApplicationDocumentsDirectory();

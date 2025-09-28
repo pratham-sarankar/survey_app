@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:icons_plus/icons_plus.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:survey_app/widgets/survey_card.dart';
 
 import '../providers/survey_provider.dart';
-import '../utils/dialog_helper.dart';
 import '../widgets/app_drawer.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -26,36 +24,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadSurveys() async {
     final surveyProvider = Provider.of<SurveyProvider>(context, listen: false);
     await surveyProvider.loadSurveys(context);
-  }
-
-  Future<void> _deleteSurvey(int surveyId) async {
-    final confirmed = await DialogHelper.showConfirmationDialog(
-      context,
-      title: 'Delete Survey',
-      message: 'Are you sure you want to delete this survey?',
-      confirmText: 'Delete',
-      cancelText: 'Cancel',
-    );
-
-    if (!confirmed || !mounted) return;
-
-    final surveyProvider = Provider.of<SurveyProvider>(context, listen: false);
-    final success = await surveyProvider.deleteSurvey(context, surveyId);
-
-    if (!mounted) return;
-
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Survey deleted successfully')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(surveyProvider.error ?? 'Failed to delete survey'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
   }
 
   @override
@@ -137,171 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
             itemCount: surveys.length,
             itemBuilder: (context, index) {
               final survey = surveys[index];
-              return Card(
-                margin: const EdgeInsets.only(bottom: 16),
-                elevation: 2,
-                clipBehavior: Clip.antiAlias,
-                child: InkWell(
-                  onTap: () {
-                    // TODO: Implement survey details view
-                  },
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        color: Theme.of(context).primaryColor.withOpacity(0.1),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.home_work_outlined),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'Property ID: ${survey.propertyUid}',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).primaryColor,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                'Ward ${survey.wardNumber}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.photo_library_outlined),
-                              onPressed: () => Navigator.pushNamed(
-                                context,
-                                '/survey-photos',
-                                arguments: survey.id.toString(),
-                              ),
-                              tooltip: 'Survey Photos',
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete_outline),
-                              color: Colors.red,
-                              onPressed: () => _deleteSurvey(survey.id),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(Icons.person, size: 20),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    survey.ownerName,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Row(
-                                    children: [
-                                      const Icon(Icons.phone, size: 20),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        survey.contactNumber,
-                                        style: TextStyle(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .secondary,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Row(
-                                    children: [
-                                      Brand(Brands.whatsapp),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          survey.whatsappNumber,
-                                          style: TextStyle(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondary,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Divider(height: 24),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Created: ${DateFormat('MMM d, yyyy').format(survey.createdAt!)}',
-                                  style: TextStyle(
-                                    color:
-                                        Theme.of(context).colorScheme.secondary,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.location_on,
-                                      size: 16,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .secondary,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      '${survey.latitude.toStringAsFixed(6)}, ${survey.longitude.toStringAsFixed(6)}',
-                                      style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondary,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
+              return SurveyCard(survey: survey);
             },
           );
         },

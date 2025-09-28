@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:survey_app/config/api_exception.dart';
 
 import '../config/api_config.dart';
 import '../models/user.dart';
@@ -44,10 +45,10 @@ class AuthService {
             .join(', ');
         throw Exception(errors);
       } else {
-        throw Exception(responseData['message'] ?? 'Registration failed');
+        throw APIException(responseData['message'] ?? 'Registration failed');
       }
     } catch (e) {
-      throw Exception(e.toString());
+      throw APIException(e.toString());
     }
   }
 
