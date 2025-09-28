@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:survey_app/config/api_exception.dart';
 
 import '../config/api_config.dart';
 import '../models/user.dart';
@@ -11,13 +10,54 @@ class AuthService {
   static const String _tokenKey = 'auth_token';
   static const String _userKey = 'user_data';
 
-  Future<User> login(String username, String password) async {
+  Future<User> register({
+    required String username,
+    required String mobile,
+    required String email,
+    required String loginId,
+    required String password,
+    UserRole role = UserRole.surveyor,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/register'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'username': username,
+          'mobile': mobile,
+          'email': email,
+          'login_id': loginId,
+          'password': password,
+          'role': role.toString().split('.').last,
+        }),
+      );
+
+      final responseData = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && responseData['status'] == 'success') {
+        // Registration successful, now attempt to login
+        return await login(loginId, password);
+      } else if (responseData['detail'] != null) {
+        // Handle validation errors
+        final errors = (responseData['detail'] as List)
+            .map((e) => e['msg'].toString())
+            .join(', ');
+        throw Exception(errors);
+      } else {
+        throw Exception(responseData['message'] ?? 'Registration failed');
+      }
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
+  Future<User> login(String loginId, String password) async {
     try {
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'login_id': username,
+          'login_id': loginId,
           'password': password,
         }),
       );
@@ -46,41 +86,10 @@ class AuthService {
 
         return user;
       } else {
-        throw APIException(responseData['message'] ?? 'Login failed');
+        throw Exception(responseData['message'] ?? 'Login failed');
       }
     } catch (e) {
-      if (e is APIException) rethrow;
-      throw APIException('An error occurred during login: $e');
-    }
-  }
-
-  Future<User?> register(String username, String password) async {
-    try {
-      final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/auth/register'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'username': username,
-          'password': password,
-        }),
-      );
-
-      if (response.statusCode == 201) {
-        final data = jsonDecode(response.body);
-        final user = User.fromJson(data['user']);
-        final token = data['token'];
-
-        // Save token and user data locally
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString(_tokenKey, token);
-        await prefs.setString(_userKey, jsonEncode(user.toJson()));
-
-        return user.copyWith(token: token);
-      } else {
-        throw Exception('Registration failed: ${response.body}');
-      }
-    } catch (e) {
-      rethrow;
+      throw Exception(e.toString());
     }
   }
 

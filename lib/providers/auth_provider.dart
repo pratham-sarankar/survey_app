@@ -47,17 +47,29 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> register(String username, String password) async {
+  Future<bool> register({
+    required String username,
+    required String mobile,
+    required String email,
+    required String loginId,
+    required String password,
+  }) async {
     _setLoading(true);
     _clearError();
 
     try {
-      _user = await _authService.register(username, password);
+      _user = await _authService.register(
+        username: username,
+        mobile: mobile,
+        email: email,
+        loginId: loginId,
+        password: password,
+      );
       _error = null;
       notifyListeners();
       return true;
     } catch (e) {
-      _error = e.toString();
+      _error = e.toString().replaceAll('Exception: ', '');
       notifyListeners();
       return false;
     } finally {

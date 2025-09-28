@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:survey_app/models/survey_entry.dart';
 
 import 'config/app_config.dart';
 import 'config/service_locator.dart';
 import 'providers/auth_provider.dart';
 import 'providers/survey_provider.dart';
-import 'screens/add_entry_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
@@ -27,8 +25,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => SurveyProvider()),
+        ChangeNotifierProvider(
+          create: (_) => AuthProvider(),
+        ),
+        ChangeNotifierProxyProvider<AuthProvider, SurveyProvider>(
+          create: (_) => SurveyProvider(serviceLocator()),
+          update: (_, auth, previous) =>
+              previous ?? SurveyProvider(serviceLocator()),
+        ),
       ],
       child: MaterialApp(
         title: AppConfig.appName,
@@ -64,15 +68,8 @@ class MyApp extends StatelessWidget {
           '/login': (context) => const LoginScreen(),
           '/register': (context) => const RegisterScreen(),
           '/home': (context) => const HomeScreen(),
-          '/add-entry': (context) => const AddEntryScreen(),
         },
         onGenerateRoute: (settings) {
-          if (settings.name == '/entry-details') {
-            final entry = settings.arguments as SurveyEntry?;
-            return MaterialPageRoute(
-              builder: (context) => AddEntryScreen(entry: entry),
-            );
-          }
           return null;
         },
       ),

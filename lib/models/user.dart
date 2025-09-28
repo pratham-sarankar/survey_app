@@ -10,6 +10,12 @@ class User {
   final String id;
   final String username;
   final UserRole role;
+  final String? email;
+  final String? mobile;
+  @JsonKey(name: 'login_id')
+  final String? loginId;
+  @JsonKey(ignore: true)
+  final String? password;
   @JsonKey(name: 'access_token')
   final String? token;
   @JsonKey(name: 'token_type')
@@ -21,6 +27,10 @@ class User {
     required this.id,
     required this.username,
     required this.role,
+    this.email,
+    this.mobile,
+    this.loginId,
+    this.password,
     this.token,
     this.tokenType,
     this.expiresIn,
@@ -46,10 +56,26 @@ class User {
 
   Map<String, dynamic> toJson() => _$UserToJson(this);
 
+  // Convert to registration request
+  Map<String, dynamic> toRegistrationRequest() {
+    return {
+      'username': username,
+      'mobile': mobile,
+      'email': email,
+      'login_id': loginId,
+      'password': password,
+      'role': role.toString().split('.').last,
+    };
+  }
+
   User copyWith({
     String? id,
     String? username,
     UserRole? role,
+    String? email,
+    String? mobile,
+    String? loginId,
+    String? password,
     String? token,
     String? tokenType,
     int? expiresIn,
@@ -58,6 +84,10 @@ class User {
       id: id ?? this.id,
       username: username ?? this.username,
       role: role ?? this.role,
+      email: email ?? this.email,
+      mobile: mobile ?? this.mobile,
+      loginId: loginId ?? this.loginId,
+      password: password ?? this.password,
       token: token ?? this.token,
       tokenType: tokenType ?? this.tokenType,
       expiresIn: expiresIn ?? this.expiresIn,
@@ -71,6 +101,9 @@ class User {
         other.id == id &&
         other.username == username &&
         other.role == role &&
+        other.email == email &&
+        other.mobile == mobile &&
+        other.loginId == loginId &&
         other.token == token &&
         other.tokenType == tokenType &&
         other.expiresIn == expiresIn;
@@ -81,6 +114,9 @@ class User {
     return id.hashCode ^
         username.hashCode ^
         role.hashCode ^
+        email.hashCode ^
+        mobile.hashCode ^
+        loginId.hashCode ^
         token.hashCode ^
         tokenType.hashCode ^
         expiresIn.hashCode;
@@ -88,6 +124,6 @@ class User {
 
   @override
   String toString() {
-    return 'User(id: $id, username: $username, role: $role, token: $token, tokenType: $tokenType, expiresIn: $expiresIn)';
+    return 'User(id: $id, username: $username, role: $role, email: $email, mobile: $mobile, loginId: $loginId, token: $token, tokenType: $tokenType, expiresIn: $expiresIn)';
   }
 }

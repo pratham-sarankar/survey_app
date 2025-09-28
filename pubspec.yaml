@@ -34,9 +34,13 @@ dependencies:
   
   # JSON serialization
   json_annotation: ^4.8.1
-  
+
+  # Date formatting
+  intl: ^0.18.1
+
   # UI components
   cupertino_icons: ^1.0.2
+  icons_plus: ^5.0.0
 
 dev_dependencies:
   flutter_test:
@@ -52,12 +56,5 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   
-  # Assets
   assets:
     - assets/images/
-    
-  # Fonts (if needed)
-  # fonts:
-  #   - family: Roboto
-  #     fonts:
-  #       - asset: fonts/Roboto-Regular.ttf

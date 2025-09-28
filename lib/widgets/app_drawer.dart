@@ -2,11 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/auth_provider.dart';
+import '../screens/login_screen.dart';
+import '../utils/dialog_helper.dart';
 
 class AppDrawer extends StatelessWidget {
-  const AppDrawer({super.key, required this.onLogout});
+  const AppDrawer({super.key});
 
-  final VoidCallback onLogout;
+  Future<void> _logout(BuildContext context) async {
+    // First close the drawer
+    Navigator.of(context).pop();
+
+    final confirmed = await DialogHelper.showConfirmationDialog(
+      context,
+      title: 'Logout',
+      message: 'Are you sure you want to logout?',
+      confirmText: 'Logout',
+      cancelText: 'Cancel',
+    );
+
+    if (confirmed && context.mounted) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await authProvider.logout();
+
+      if (context.mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (route) => false,
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +50,9 @@ class AppDrawer extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
+                    const SizedBox(
+                      width: double.infinity,
+                    ),
                     CircleAvatar(
                       radius: 30,
                       backgroundColor: Colors.white,
@@ -44,7 +72,7 @@ class AppDrawer extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      authProvider.isAdmin ? 'Admin' : 'User',
+                      user?.role.toString().split('.').last ?? 'Unknown Role',
                       style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 14,
@@ -59,16 +87,14 @@ class AppDrawer extends StatelessWidget {
                   children: [
                     ListTile(
                       leading: const Icon(Icons.list),
-                      title: Text(
-                          authProvider.isAdmin ? 'All Entries' : 'My Entries'),
+                      title: const Text('Surveys'),
                       onTap: () {
                         Navigator.of(context).pop(); // Close drawer
-                        // We're already on the home screen, so just refresh
                       },
                     ),
                     ListTile(
                       leading: const Icon(Icons.add),
-                      title: const Text('Add Entry'),
+                      title: const Text('Add Survey'),
                       onTap: () {
                         Navigator.of(context).pop(); // Close drawer
                         Navigator.of(context).pushNamed('/add-entry');
@@ -81,10 +107,7 @@ class AppDrawer extends StatelessWidget {
               ListTile(
                 leading: const Icon(Icons.logout),
                 title: const Text('Logout'),
-                onTap: () {
-                  Navigator.of(context).pop(); // Close drawer first
-                  onLogout();
-                },
+                onTap: () => _logout(context),
               ),
               const SizedBox(height: 16),
             ],
