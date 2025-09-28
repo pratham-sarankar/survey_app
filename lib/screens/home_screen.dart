@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/survey_provider.dart';
+import '../utils/dialog_helper.dart';
 import '../widgets/app_drawer.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -25,6 +26,36 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadSurveys() async {
     final surveyProvider = Provider.of<SurveyProvider>(context, listen: false);
     await surveyProvider.loadSurveys(context);
+  }
+
+  Future<void> _deleteSurvey(int surveyId) async {
+    final confirmed = await DialogHelper.showConfirmationDialog(
+      context,
+      title: 'Delete Survey',
+      message: 'Are you sure you want to delete this survey?',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+    );
+
+    if (!confirmed || !mounted) return;
+
+    final surveyProvider = Provider.of<SurveyProvider>(context, listen: false);
+    final success = await surveyProvider.deleteSurvey(context, surveyId);
+
+    if (!mounted) return;
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Survey deleted successfully')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(surveyProvider.error ?? 'Failed to delete survey'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -92,7 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 8),
                   ElevatedButton.icon(
                     onPressed: () =>
-                        Navigator.of(context).pushNamed('/add-entry'),
+                        Navigator.of(context).pushNamed('/add-survey'),
                     icon: const Icon(Icons.add),
                     label: const Text('Add New Survey'),
                   ),
@@ -128,30 +159,41 @@ class _HomeScreenState extends State<HomeScreen> {
                             const Icon(Icons.home_work_outlined),
                             const SizedBox(width: 8),
                             Expanded(
-                              child: Text(
-                                'Property ID: ${survey.propertyUid}',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Property ID: ${survey.propertyUid}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 5,
+                                      vertical: 02,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).primaryColor,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      'Ward ${survey.wardNumber}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).primaryColor,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                'Ward ${survey.wardNumber}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                            IconButton(
+                              icon: const Icon(Icons.delete_outline),
+                              color: Colors.red,
+                              onPressed: () => _deleteSurvey(survey.id),
                             ),
                           ],
                         ),

@@ -50,6 +50,28 @@ class SurveyProvider with ChangeNotifier {
     }
   }
 
+  Future<bool> deleteSurvey(BuildContext context, int surveyId) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final success = await _surveyService.deleteSurvey(context, surveyId);
+      if (success) {
+        // Remove the survey from the local list
+        _surveys.removeWhere((survey) => survey.id == surveyId);
+      }
+      _error = null;
+      return success;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   void clearError() {
     _error = null;
     notifyListeners();

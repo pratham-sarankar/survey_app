@@ -121,4 +121,39 @@ class SurveyService {
       throw APIException(e.toString());
     }
   }
+
+  Future<bool> deleteSurvey(BuildContext context, int surveyId) async {
+    try {
+      final token = await _authService.getToken();
+      if (token == null) {
+        throw Exception('No auth token found');
+      }
+
+      final response = await http.delete(
+        Uri.parse('${ApiConfig.baseUrl}/surveys/$surveyId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 401) {
+        if (context.mounted) {
+          await _handleUnauthorized(context);
+        }
+        throw APIException('Unauthorized');
+      }
+
+      final responseData = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && responseData['status'] == 'success') {
+        return true;
+      } else {
+        throw APIException(
+            responseData['message'] ?? 'Failed to delete survey');
+      }
+    } catch (e) {
+      throw APIException(e.toString());
+    }
+  }
 }

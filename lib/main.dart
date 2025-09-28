@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:survey_app/screens/add_entry_screen.dart';
+import 'package:survey_app/screens/add_survey_screen.dart';
 
 import 'config/app_config.dart';
 import 'config/service_locator.dart';

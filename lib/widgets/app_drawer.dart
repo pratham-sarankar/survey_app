@@ -97,7 +97,7 @@ class AppDrawer extends StatelessWidget {
                       title: const Text('Add Survey'),
                       onTap: () {
                         Navigator.of(context).pop(); // Close drawer
-                        Navigator.of(context).pushNamed('/add-entry');
+                        Navigator.of(context).pushNamed('/add-survey');
                       },
                     ),
                   ],
