@@ -93,6 +93,14 @@ class AppDrawer extends StatelessWidget {
                       },
                     ),
                     ListTile(
+                      leading: const Icon(Icons.list),
+                      title: const Text('Properties'),
+                      onTap: () {
+                        Navigator.of(context).pop(); // Close drawer
+                        Navigator.of(context).pushNamed('/properties');
+                      },
+                    ),
+                    ListTile(
                       leading: const Icon(Icons.add),
                       title: const Text('Add Survey'),
                       onTap: () {

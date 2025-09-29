@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:survey_app/models/survey.dart';
 import 'package:survey_app/screens/add_survey_screen.dart';
+import 'package:survey_app/screens/properties.dart';
 import 'package:survey_app/screens/survey_photos_screen.dart';
 
 import 'config/app_config.dart';
@@ -75,6 +76,7 @@ class MyApp extends StatelessWidget {
           '/login': (context) => const LoginScreen(),
           '/register': (context) => const RegisterScreen(),
           '/home': (context) => const HomeScreen(),
+          '/properties': (context) => const PropertiesScreen(),
         },
         onGenerateRoute: (settings) {
           if (settings.name == '/survey-photos') {
