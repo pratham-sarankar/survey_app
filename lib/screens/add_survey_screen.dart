@@ -29,6 +29,8 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
   final _formKey = GlobalKey<FormState>();
   late final SurveyForm _form;
   late GoogleMapController _mapController;
+  late TextEditingController latController;
+  late TextEditingController lngController;
   Set<Marker> _markers = {};
   bool _isMapReady = false;
 
@@ -39,6 +41,7 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
   @override
   void initState() {
     super.initState();
+
     // Initialize form with existing survey data or property data
     _form = SurveyForm(
       propertyUid: widget.survey?.propertyUid ?? widget.property?.uid ?? '',
@@ -53,6 +56,12 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
       whatsappNumber: widget.survey?.whatsappNumber ?? '',
       latitude: widget.survey?.latitude ?? 0.0,
       longitude: widget.survey?.longitude ?? 0.0,
+    );
+    latController = TextEditingController(
+      text: _form.latitude.toString(),
+    );
+    lngController = TextEditingController(
+      text: _form.longitude.toString(),
     );
 
     if (widget.survey != null) {
@@ -87,6 +96,8 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
         _form.latitude = position.latitude;
         _form.longitude = position.longitude;
         _selectedLocation = LatLng(position.latitude, position.longitude);
+        latController.text = position.latitude.toString();
+        lngController.text = position.longitude.toString();
         _updateMarker();
       });
 
@@ -322,13 +333,13 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
                         children: [
                           Expanded(
                             child: TextFormField(
+                              controller: latController,
                               decoration: const InputDecoration(
                                 labelText: 'Latitude',
                                 prefixIcon: Icon(Icons.location_on),
                               ),
                               keyboardType: TextInputType.number,
                               validator: Validators.validateLatitude,
-                              initialValue: _form.latitude.toString(),
                               onChanged: (value) {
                                 final lat = double.tryParse(value);
                                 if (lat != null) {
@@ -345,13 +356,13 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
                           const SizedBox(width: 16),
                           Expanded(
                             child: TextFormField(
+                              controller: lngController,
                               decoration: const InputDecoration(
                                 labelText: 'Longitude',
                                 prefixIcon: Icon(Icons.location_on),
                               ),
                               keyboardType: TextInputType.number,
                               validator: Validators.validateLongitude,
-                              initialValue: _form.longitude.toString(),
                               onChanged: (value) {
                                 final lng = double.tryParse(value);
                                 if (lng != null) {
@@ -401,6 +412,10 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
                                 _selectedLocation = position;
                                 _form.latitude = position.latitude;
                                 _form.longitude = position.longitude;
+                                latController.text =
+                                    position.latitude.toString();
+                                lngController.text =
+                                    position.longitude.toString();
                                 _updateMarker();
                               });
                             },
