@@ -74,6 +74,47 @@ class SurveyProvider with ChangeNotifier {
     }
   }
 
+  Future<bool> updateSurvey(
+      BuildContext context, int surveyId, SurveyForm form) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final success =
+          await _surveyService.updateSurvey(context, surveyId, form);
+      if (success) {
+        // Update the local survey in the list with form data
+        final index = _surveys.indexWhere((s) => s.id == surveyId);
+        if (index != -1) {
+          _surveys[index] = Survey(
+            id: surveyId,
+            propertyUid: form.propertyUid,
+            qrId: form.qrId,
+            ownerName: form.ownerName,
+            fatherOrSpouseName: form.fatherOrSpouseName,
+            wardNumber: form.wardNumber,
+            contactNumber: form.contactNumber,
+            whatsappNumber: form.whatsappNumber,
+            latitude: form.latitude,
+            longitude: form.longitude,
+            surveyorProfileId: _surveys[index].surveyorProfileId,
+            createdAt: _surveys[index].createdAt,
+            updatedAt: DateTime.now(),
+          );
+          notifyListeners();
+        }
+      }
+      return success;
+    } catch (e) {
+      _error = e.toString().replaceAll('Exception: ', '');
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   void clearError() {
     _error = null;
     notifyListeners();

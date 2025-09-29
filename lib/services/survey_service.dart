@@ -1,11 +1,17 @@
-import 'package:flutter/material.dart';
-import 'package:survey_app/models/survey.dart';
+import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+import '../config/api_config.dart';
+import '../config/api_exception.dart';
+import '../models/survey.dart';
 import '../models/survey_form.dart';
 import 'api_service.dart';
+import 'auth_service.dart';
 
 class SurveyService extends APIService {
-  SurveyService(super.authService);
+  SurveyService(AuthService authService) : super(authService);
 
   Future<List<Survey>> getSurveys(BuildContext context) async {
     return getList<Survey>(
@@ -39,5 +45,40 @@ class SurveyService extends APIService {
       context: context,
       endpoint: '/surveys/$surveyId',
     );
+  }
+
+  Future<bool> updateSurvey(
+      BuildContext context, int surveyId, SurveyForm form) async {
+    try {
+      final token = await getToken();
+      if (token == null) throw Exception('No auth token found');
+
+      final response = await http.put(
+        Uri.parse('${ApiConfig.baseUrl}/surveys/$surveyId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(form.toJson()),
+      );
+
+      if (response.statusCode == 401) {
+        if (context.mounted) {
+          await handleUnauthorized(context);
+        }
+        throw Exception('Unauthorized');
+      }
+
+      final responseData = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && responseData['status'] == 'success') {
+        return true; // Just return success status, don't depend on response data
+      } else {
+        throw APIException(
+            responseData['message'] ?? 'Failed to update survey');
+      }
+    } catch (e) {
+      throw APIException(e.toString());
+    }
   }
 }

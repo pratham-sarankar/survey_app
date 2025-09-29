@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:survey_app/models/survey.dart';
 import 'package:survey_app/screens/add_survey_screen.dart';
 import 'package:survey_app/screens/survey_photos_screen.dart';
 
@@ -74,13 +75,18 @@ class MyApp extends StatelessWidget {
           '/login': (context) => const LoginScreen(),
           '/register': (context) => const RegisterScreen(),
           '/home': (context) => const HomeScreen(),
-          '/add-survey': (context) => const AddSurveyScreen(),
         },
         onGenerateRoute: (settings) {
           if (settings.name == '/survey-photos') {
             final surveyId = settings.arguments as String;
             return MaterialPageRoute(
               builder: (context) => SurveyPhotosScreen(surveyId: surveyId),
+            );
+          }
+          if (settings.name == '/add-survey') {
+            final survey = settings.arguments as Survey?;
+            return MaterialPageRoute(
+              builder: (context) => AddSurveyScreen(survey: survey),
             );
           }
           return null;

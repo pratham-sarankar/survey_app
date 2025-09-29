@@ -4,13 +4,19 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:provider/provider.dart';
 
+import '../models/survey.dart';
 import '../models/survey_form.dart';
 import '../providers/survey_provider.dart';
 import '../screens/survey_photos_screen.dart';
 import '../utils/validators.dart';
 
 class AddSurveyScreen extends StatefulWidget {
-  const AddSurveyScreen({super.key});
+  final Survey? survey; // Add this parameter for editing
+
+  const AddSurveyScreen({
+    super.key,
+    this.survey, // Optional survey for editing
+  });
 
   @override
   State<AddSurveyScreen> createState() => _AddSurveyScreenState();
@@ -18,7 +24,7 @@ class AddSurveyScreen extends StatefulWidget {
 
 class _AddSurveyScreenState extends State<AddSurveyScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _form = SurveyForm();
+  late final SurveyForm _form;
   late GoogleMapController _mapController;
   Set<Marker> _markers = {};
   bool _isMapReady = false;
@@ -26,6 +32,28 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
   // Default location (can be set to a default city center)
   final LatLng _defaultLocation = const LatLng(28.6139, 77.2090); // Delhi
   LatLng? _selectedLocation;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize form with existing survey data if editing
+    _form = SurveyForm(
+      propertyUid: widget.survey?.propertyUid ?? '',
+      qrId: widget.survey?.qrId ?? '',
+      ownerName: widget.survey?.ownerName ?? '',
+      fatherOrSpouseName: widget.survey?.fatherOrSpouseName ?? '',
+      wardNumber: widget.survey?.wardNumber ?? '',
+      contactNumber: widget.survey?.contactNumber ?? '',
+      whatsappNumber: widget.survey?.whatsappNumber ?? '',
+      latitude: widget.survey?.latitude ?? 0.0,
+      longitude: widget.survey?.longitude ?? 0.0,
+    );
+
+    if (widget.survey != null) {
+      _selectedLocation =
+          LatLng(widget.survey!.latitude, widget.survey!.longitude);
+    }
+  }
 
   @override
   void dispose() {
@@ -97,19 +125,42 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
     final surveyProvider = Provider.of<SurveyProvider>(context, listen: false);
 
     try {
-      final surveyId = await surveyProvider.createSurvey(context, _form);
+      bool success;
+      String? surveyId;
 
-      if (surveyId != null && mounted) {
-        // Navigate to SurveyPhotosScreen with the new survey ID
+      if (widget.survey != null) {
+        // Update existing survey
+        success = await surveyProvider.updateSurvey(
+          context,
+          widget.survey!.id,
+          _form,
+        );
+        surveyId = widget.survey!.id.toString();
+      } else {
+        // Create new survey
+        surveyId = await surveyProvider.createSurvey(context, _form);
+        success = surveyId != null;
+      }
+
+      if (success && mounted && surveyId != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(widget.survey != null
+                ? 'Survey updated successfully'
+                : 'Survey created successfully'),
+          ),
+        );
+
+        // Navigate to photos screen
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (_) => SurveyPhotosScreen(surveyId: surveyId),
+            builder: (_) => SurveyPhotosScreen(surveyId: surveyId!),
           ),
         );
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(surveyProvider.error ?? 'Failed to create survey'),
+            content: Text(surveyProvider.error ?? 'Operation failed'),
             backgroundColor: Colors.red,
           ),
         );
@@ -117,8 +168,9 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to create survey'),
+          SnackBar(
+            content: Text(
+                'Failed to ${widget.survey != null ? 'update' : 'create'} survey'),
             backgroundColor: Colors.red,
           ),
         );
@@ -130,7 +182,7 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Survey'),
+        title: Text(widget.survey != null ? 'Edit Survey' : 'Add Survey'),
       ),
       body: Consumer<SurveyProvider>(
         builder: (context, surveyProvider, child) {
@@ -147,8 +199,8 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
                           labelText: 'Property UID',
                           prefixIcon: Icon(Icons.home),
                         ),
-                        validator: (value) =>
-                            Validators.validatePropertyUid(value),
+                        initialValue: widget.survey?.propertyUid,
+                        validator: Validators.validatePropertyUid,
                         onSaved: (value) =>
                             _form.propertyUid = value?.trim() ?? '',
                       ),
@@ -158,6 +210,7 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
                           labelText: 'QR ID',
                           prefixIcon: Icon(Icons.qr_code),
                         ),
+                        initialValue: widget.survey?.qrId,
                         validator: (value) =>
                             Validators.validateRequired(value, 'QR ID'),
                         onSaved: (value) => _form.qrId = value?.trim() ?? '',
@@ -168,6 +221,7 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
                           labelText: 'Owner Name',
                           prefixIcon: Icon(Icons.person),
                         ),
+                        initialValue: widget.survey?.ownerName,
                         validator: (value) =>
                             Validators.validateRequired(value, 'Owner Name'),
                         onSaved: (value) =>
@@ -179,6 +233,7 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
                           labelText: 'Father/Spouse Name',
                           prefixIcon: Icon(Icons.person_outline),
                         ),
+                        initialValue: widget.survey?.fatherOrSpouseName,
                         validator: (value) => Validators.validateRequired(
                             value, 'Father/Spouse Name'),
                         onSaved: (value) =>
@@ -190,6 +245,7 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
                           labelText: 'Ward Number',
                           prefixIcon: Icon(Icons.location_city),
                         ),
+                        initialValue: widget.survey?.wardNumber,
                         validator: (value) =>
                             Validators.validateRequired(value, 'Ward Number'),
                         onSaved: (value) =>
@@ -201,6 +257,7 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
                           labelText: 'Contact Number',
                           prefixIcon: Icon(Icons.phone),
                         ),
+                        initialValue: widget.survey?.contactNumber,
                         keyboardType: TextInputType.phone,
                         validator: Validators.validateMobile,
                         onSaved: (value) =>
@@ -212,6 +269,7 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
                           labelText: 'WhatsApp Number',
                           prefixIcon: Brand(Brands.whatsapp),
                         ),
+                        initialValue: widget.survey?.whatsappNumber,
                         keyboardType: TextInputType.phone,
                         validator: Validators.validateMobile,
                         onSaved: (value) =>
@@ -228,9 +286,7 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
                               ),
                               keyboardType: TextInputType.number,
                               validator: Validators.validateLatitude,
-                              controller: TextEditingController(
-                                text: _form.latitude.toString(),
-                              ),
+                              initialValue: widget.survey?.latitude.toString(),
                               onChanged: (value) {
                                 final lat = double.tryParse(value);
                                 if (lat != null) {
@@ -253,9 +309,7 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
                               ),
                               keyboardType: TextInputType.number,
                               validator: Validators.validateLongitude,
-                              controller: TextEditingController(
-                                text: _form.longitude.toString(),
-                              ),
+                              initialValue: widget.survey?.longitude.toString(),
                               onChanged: (value) {
                                 final lng = double.tryParse(value);
                                 if (lng != null) {
@@ -317,8 +371,10 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
                             surveyProvider.isLoading ? null : _submitForm,
                         child: Text(
                           surveyProvider.isLoading
-                              ? 'Creating...'
-                              : 'Create Survey',
+                              ? 'Saving...'
+                              : (widget.survey != null
+                                  ? 'Update Survey'
+                                  : 'Create Survey'),
                         ),
                       ),
                     ],
