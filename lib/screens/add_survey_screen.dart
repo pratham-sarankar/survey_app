@@ -4,6 +4,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:provider/provider.dart';
 
+import '../models/property.dart';
 import '../models/survey.dart';
 import '../models/survey_form.dart';
 import '../providers/survey_provider.dart';
@@ -11,11 +12,13 @@ import '../screens/survey_photos_screen.dart';
 import '../utils/validators.dart';
 
 class AddSurveyScreen extends StatefulWidget {
-  final Survey? survey; // Add this parameter for editing
+  final Survey? survey;
+  final Property? property;
 
   const AddSurveyScreen({
     super.key,
-    this.survey, // Optional survey for editing
+    this.survey,
+    this.property,
   });
 
   @override
@@ -29,21 +32,24 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
   Set<Marker> _markers = {};
   bool _isMapReady = false;
 
-  // Default location (can be set to a default city center)
-  final LatLng _defaultLocation = const LatLng(28.6139, 77.2090); // Delhi
+  final LatLng _defaultLocation = const LatLng(28.6139, 77.2090);
   LatLng? _selectedLocation;
+  bool _whatsappSameAsContact = false;
 
   @override
   void initState() {
     super.initState();
-    // Initialize form with existing survey data if editing
+    // Initialize form with existing survey data or property data
     _form = SurveyForm(
-      propertyUid: widget.survey?.propertyUid ?? '',
+      propertyUid: widget.survey?.propertyUid ?? widget.property?.uid ?? '',
       qrId: widget.survey?.qrId ?? '',
-      ownerName: widget.survey?.ownerName ?? '',
-      fatherOrSpouseName: widget.survey?.fatherOrSpouseName ?? '',
+      ownerName: widget.survey?.ownerName ?? widget.property?.ownerName ?? '',
+      fatherOrSpouseName: widget.survey?.fatherOrSpouseName ??
+          widget.property?.fatherName ??
+          '',
       wardNumber: widget.survey?.wardNumber ?? '',
-      contactNumber: widget.survey?.contactNumber ?? '',
+      contactNumber:
+          widget.survey?.contactNumber ?? widget.property?.mobileNo ?? '',
       whatsappNumber: widget.survey?.whatsappNumber ?? '',
       latitude: widget.survey?.latitude ?? 0.0,
       longitude: widget.survey?.longitude ?? 0.0,
@@ -199,7 +205,7 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
                           labelText: 'Property UID',
                           prefixIcon: Icon(Icons.home),
                         ),
-                        initialValue: widget.survey?.propertyUid,
+                        initialValue: _form.propertyUid,
                         validator: Validators.validatePropertyUid,
                         onSaved: (value) =>
                             _form.propertyUid = value?.trim() ?? '',
@@ -210,7 +216,7 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
                           labelText: 'QR ID',
                           prefixIcon: Icon(Icons.qr_code),
                         ),
-                        initialValue: widget.survey?.qrId,
+                        initialValue: _form.qrId,
                         validator: (value) =>
                             Validators.validateRequired(value, 'QR ID'),
                         onSaved: (value) => _form.qrId = value?.trim() ?? '',
@@ -221,7 +227,7 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
                           labelText: 'Owner Name',
                           prefixIcon: Icon(Icons.person),
                         ),
-                        initialValue: widget.survey?.ownerName,
+                        initialValue: _form.ownerName,
                         validator: (value) =>
                             Validators.validateRequired(value, 'Owner Name'),
                         onSaved: (value) =>
@@ -233,7 +239,7 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
                           labelText: 'Father/Spouse Name',
                           prefixIcon: Icon(Icons.person_outline),
                         ),
-                        initialValue: widget.survey?.fatherOrSpouseName,
+                        initialValue: _form.fatherOrSpouseName,
                         validator: (value) => Validators.validateRequired(
                             value, 'Father/Spouse Name'),
                         onSaved: (value) =>
@@ -245,7 +251,7 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
                           labelText: 'Ward Number',
                           prefixIcon: Icon(Icons.location_city),
                         ),
-                        initialValue: widget.survey?.wardNumber,
+                        initialValue: _form.wardNumber,
                         validator: (value) =>
                             Validators.validateRequired(value, 'Ward Number'),
                         onSaved: (value) =>
@@ -257,23 +263,59 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
                           labelText: 'Contact Number',
                           prefixIcon: Icon(Icons.phone),
                         ),
-                        initialValue: widget.survey?.contactNumber,
+                        initialValue: _form.contactNumber,
                         keyboardType: TextInputType.phone,
                         validator: Validators.validateMobile,
+                        onChanged: (value) {
+                          setState(() {
+                            _form.contactNumber = value.trim();
+                          });
+                        },
                         onSaved: (value) =>
                             _form.contactNumber = value?.trim() ?? '',
                       ),
                       const SizedBox(height: 16),
-                      TextFormField(
-                        decoration: InputDecoration(
-                          labelText: 'WhatsApp Number',
-                          prefixIcon: Brand(Brands.whatsapp),
+                      if (_whatsappSameAsContact)
+                        TextFormField(
+                          decoration: InputDecoration(
+                            labelText: 'WhatsApp Number',
+                            prefixIcon: Brand(Brands.whatsapp),
+                          ),
+                          enabled: false,
+                          controller:
+                              TextEditingController(text: _form.contactNumber),
+                        )
+                      else
+                        TextFormField(
+                          decoration: InputDecoration(
+                            labelText: 'WhatsApp Number',
+                            prefixIcon: Brand(Brands.whatsapp),
+                          ),
+                          enabled: !_whatsappSameAsContact,
+                          initialValue: _form.whatsappNumber,
+                          keyboardType: TextInputType.phone,
+                          validator: Validators.validateMobile,
+                          onSaved: (value) =>
+                              _form.whatsappNumber = value?.trim() ?? '',
                         ),
-                        initialValue: widget.survey?.whatsappNumber,
-                        keyboardType: TextInputType.phone,
-                        validator: Validators.validateMobile,
-                        onSaved: (value) =>
-                            _form.whatsappNumber = value?.trim() ?? '',
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: _whatsappSameAsContact,
+                            onChanged: (value) {
+                              setState(() {
+                                _whatsappSameAsContact = value ?? false;
+                                if (_whatsappSameAsContact) {
+                                  _form.whatsappNumber = _form.contactNumber;
+                                } else {
+                                  _form.whatsappNumber = '';
+                                }
+                              });
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                          const Text('WhatsApp number same as contact number'),
+                        ],
                       ),
                       const SizedBox(height: 16),
                       Row(
@@ -286,7 +328,7 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
                               ),
                               keyboardType: TextInputType.number,
                               validator: Validators.validateLatitude,
-                              initialValue: widget.survey?.latitude.toString(),
+                              initialValue: _form.latitude.toString(),
                               onChanged: (value) {
                                 final lat = double.tryParse(value);
                                 if (lat != null) {
@@ -309,7 +351,7 @@ class _AddSurveyScreenState extends State<AddSurveyScreen> {
                               ),
                               keyboardType: TextInputType.number,
                               validator: Validators.validateLongitude,
-                              initialValue: widget.survey?.longitude.toString(),
+                              initialValue: _form.longitude.toString(),
                               onChanged: (value) {
                                 final lng = double.tryParse(value);
                                 if (lng != null) {

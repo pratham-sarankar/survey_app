@@ -41,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       drawer: const AppDrawer(),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.of(context).pushNamed('/add-survey'),
+        onPressed: () => Navigator.of(context).pushNamed('/choose-property'),
         icon: const Icon(Icons.add),
         label: const Text('Add Survey'),
       ),

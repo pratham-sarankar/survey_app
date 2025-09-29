@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:survey_app/models/property.dart';
 import 'package:survey_app/models/survey.dart';
 import 'package:survey_app/screens/add_survey_screen.dart';
+import 'package:survey_app/screens/choose_property.dart';
 import 'package:survey_app/screens/properties.dart';
 import 'package:survey_app/screens/survey_photos_screen.dart';
 
@@ -77,6 +79,7 @@ class MyApp extends StatelessWidget {
           '/register': (context) => const RegisterScreen(),
           '/home': (context) => const HomeScreen(),
           '/properties': (context) => const PropertiesScreen(),
+          '/choose-property': (context) => const ChoosePropertyScreen(),
         },
         onGenerateRoute: (settings) {
           if (settings.name == '/survey-photos') {
@@ -86,9 +89,12 @@ class MyApp extends StatelessWidget {
             );
           }
           if (settings.name == '/add-survey') {
-            final survey = settings.arguments as Survey?;
+            final arg = settings.arguments;
+            final Survey? survey = arg is Survey ? arg : null;
+            final Property? property = arg is Property ? arg : null;
             return MaterialPageRoute(
-              builder: (context) => AddSurveyScreen(survey: survey),
+              builder: (context) =>
+                  AddSurveyScreen(survey: survey, property: property),
             );
           }
           return null;
