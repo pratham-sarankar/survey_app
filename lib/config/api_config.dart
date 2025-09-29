@@ -1,5 +1,5 @@
 class ApiConfig {
-  static const String baseUrl = String.fromEnvironment('baseURL');
+  static const String baseUrl = 'http://108.181.164.57:8000';
 
   // For production, you might want to use environment variables
   // static const String baseUrl = String.fromEnvironment(
