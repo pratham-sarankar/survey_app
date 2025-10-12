@@ -5,7 +5,7 @@
 .pub/
 /build/
 *.lock
-*.g.dart
+
 
 # IDE
 .vscode/
