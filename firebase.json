@@ -1,0 +1,21 @@
+{
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "survey-app-sublimeai",
+                    "appId": "1:947939542083:android:256e906867104becb000f6",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "survey-app-sublimeai",
+                    "configurations": {
+                        "android": "1:947939542083:android:256e906867104becb000f6"
+                    }
+                }
+            }
+        }
+    }
+}

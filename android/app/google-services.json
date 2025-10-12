@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "947939542083",
+    "project_id": "survey-app-sublimeai",
+    "storage_bucket": "survey-app-sublimeai.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:947939542083:android:256e906867104becb000f6",
+        "android_client_info": {
+          "package_name": "survey_app.sublimeai.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCuGFuaxBfrcQNM-RMBZkVEgSPEGagmUuA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
